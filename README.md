@@ -11,7 +11,6 @@ Projeto destinado para o desafio técnico do processo seletivo para desenvolvedo
 - [Para utilizar o projeto](#para-utilizar-o-projeto)
 - [Lições aprendidas](#lições-aprendidas)
 - [Futuro do projeto](#futuro-do-projeto)
-- [Development](#development)
 
 ## Detalhes do projeto
 
