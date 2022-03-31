@@ -1,106 +1,125 @@
+// Alteradores de classe do board
 const X_CLASS = 'x';
 const O_CLASS = 'o';
+
+// Controladores do jogo
+let vezJogadorO;
+const mensagemFimJogo = document.querySelector('.winner-message-text')
+const divFimJogo = document.getElementById('winner')
+const tiles = document.querySelectorAll('.tile');
+const board = document.getElementById('board');
+const restartButton = document.getElementById('restart-button');
 const CONDICOES_DE_VITORIA = [
+    // horizontais
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
+    // verticais
     [0, 3, 6],
     [1, 4, 7],
     [2, 5, 8],
+    // diagonais
     [0, 4, 8],
     [2, 4, 6]
 ]
-const winnerMessageTextElement = document.querySelector('.winner-message-text')
-const winnerMessageElement = document.getElementById('winner')
-const cellElements = document.querySelectorAll('.cell');
-const board = document.getElementById('board');
-const restartButton = document.getElementById('restart-button');
+
+// Controladores dark mode e daltonic mode
 const darkMode = document.getElementById('darkMode');
 const darkBody = document.getElementById('board');
-const darkHeader = document.getElementById('dark-header');
-let circleTurn;
+const daltonicAlert = document.getElementById('daltonicMode');
 
-startGame()
-
-restartButton.addEventListener('click', startGame);
+daltonicAlert.addEventListener('click', function() {
+    alert("Pensando na inclusão, força motriz da inclusio, todas as cores aqui utilizadas são acessíveis a pessoas daltônicas!")
+    daltonicAlert.disabled = true;
+})
 
 darkMode.addEventListener('change', function() {
     darkBody.classList.toggle('dark-mode')
 })
 
+
+
+restartButton.addEventListener('click', startGame);
+// Chamando startGame() para resetar o board no começo do programa
+startGame()
+
+
+// startGame docstring: Inicia o jogo, retornando as classes para os valores iniciais
 function startGame() {
-    circleTurn = false;
-    cellElements.forEach(cell => {
-        cell.classList.remove(X_CLASS);
-        cell.classList.remove(O_CLASS);
-        cell.removeEventListener('click', handleClick);
-        cell.addEventListener('click', handleClick, {once: true})
+    vezJogadorO = false;
+    tiles.forEach(tile => {
+        tile.classList.remove(X_CLASS);
+        tile.classList.remove(O_CLASS);
+        tile.removeEventListener('click', handleClick);
+        tile.addEventListener('click', handleClick, {once: true})
     });
     setBoardHoverClass();
-    winnerMessageElement.classList.remove('show');
+    divFimJogo.classList.remove('show');
 
 }
 
+// handleClick docstring: Recebe o evento de click no tile, verifica qual jogador tem seu turno atual e coloca a letra dele. Além disso, verifica as condições de vitória a cada clique (jogada)
 function handleClick(e) {
-    const cell = e.target;
-    const currentPlayer = circleTurn ? O_CLASS : X_CLASS;
-    placeMark(cell, currentPlayer);
+    const tile = e.target;
+    const jogadorAtual = vezJogadorO ? O_CLASS : X_CLASS;
+    placeMark(tile, jogadorAtual);
 
 
-    if(checkWin(currentPlayer)) {
+    if(checkWin(jogadorAtual)) {
         endGame(false);
     } else if (isDraw()) {
         endGame(true);
     } else {
         swapTurns()
-        // Order here matters
+        // Ordem importa, primeiro troca o turno (de X pra O e vice-versa) pra depois o hover do próximo jogador ser o correto
         setBoardHoverClass()
     }
 
 }
 
-
+// endGame docstring: Verifica se a condição de empate é verdadeira e a depender do resultado do jogo, mostra o texto de acordo com esse resultado
 function endGame(draw) {
     if(draw) {
-        winnerMessageTextElement.innerText = 'Deu empate'
+        mensagemFimJogo.innerText = 'Deu empate'
     } else {
-        winnerMessageTextElement.innerText = `${circleTurn ? "O" : "X"} venceu!`
+        mensagemFimJogo.innerText = `${vezJogadorO ? "O" : "X"} venceu!`
     }
 
-    winnerMessageElement.classList.add('show');
-
+    divFimJogo.classList.add('show');
 }
 
+// isDraw docstring: verifica se todas as tiles estão preenchidas e sem vencedor. Retorna true se o empate for verdadeiro, mandando o true pra função endgame, ativando o empate. Se houver vitória, um valor false (que só é ativado em caso de vitória) é passado para endGame()
 function isDraw() {
-    return [...cellElements].every(cell => {
-        return cell.classList.contains(X_CLASS) || cell.classList.contains(O_CLASS)
+    return [...tiles].every(tile => {
+        return tile.classList.contains(X_CLASS) || tile.classList.contains(O_CLASS)
     })
 }
 
-function placeMark(cell, currentPlayer) {
-    cell.classList.add(currentPlayer)
+// placeMark docstring: adiciona no tile a letra relativa ao jogador da vez
+function placeMark(tile, jogadorAtual) {
+    tile.classList.add(jogadorAtual)
 }
 
-
+// swapTurns docstring: alterna os turnos entre os jogadores
 function swapTurns() {
-    circleTurn = !circleTurn;
+    vezJogadorO = !vezJogadorO;
 }
 
-
+// setBoardHoverClass docstring: identifica qual jogador tem a vez de jogar para ativar o efeito de hover da sua letra no board
 function setBoardHoverClass() {
     board.classList.remove(X_CLASS)
     board.classList.remove(O_CLASS)
-    if (circleTurn) {
+    if (vezJogadorO) {
         board.classList.add(O_CLASS)
     } else {
         board.classList.add(X_CLASS)
     }
 }
-
-function checkWin(currentPlayer) {
+// checkWin docstring: verifica no array de arrays CONDICOES_DE_VITORIA se alguma das combinações foi atingida, verificando se todos os índices da condição de vitória estão marcados por um dos jogadores
+function checkWin(jogadorAtual) {
     return CONDICOES_DE_VITORIA.some(combinacao => {
         return combinacao.every(index => {
-            return cellElements[index].classList.contains(currentPlayer)
+            return tiles[index].classList.contains(jogadorAtual)
         })
     })
 }
